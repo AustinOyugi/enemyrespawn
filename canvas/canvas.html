@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Canvas</title>
+</head>
+<body>
+<div>
+    <video id="video" controls loop src="movie/guitar.mkv"></video>
+</div>
+
+<div>
+    <canvas id="c" height="300px" width="300px"></canvas>
+</div>
+
+  <script>
+
+    document.addEventListener("DOMContentLoaded", function (){
+        const video = document.getElementById("video")
+        const canvas = document.getElementById("c");
+        const context = canvas.getContext("2d");
+
+        video.addEventListener("loadedmetadata",function (){
+            canvas.width = this.videoWidth
+            canvas.height = this.videoHeight
+        })
+
+        const draw = function (frame_cache, func){
+            context.drawImage(frame_cache, 0, 0);
+            //setTimeout(func, 1000 / 60); // drawing at 60fps
+            requestAnimationFrame(func)
+        }
+
+        video.addEventListener('play',function (){
+            const $this_cache = this; //cache
+
+            (function loop() {
+                if (!$this_cache.paused && !$this_cache.ended) {
+                    draw($this_cache, loop)
+                }
+            })();
+
+            // console.log("Playing")
+            // if (video.pause || video.ended) return
+            // draw()
+            // console.log()
+        })
+    })
+
+    // ctx.save()
+    // ctx.strokeRect(0,0,c.width,c.height)
+    //
+    // let pixels = ctx.getImageData(0,0,c.width,c.height)
+    //
+    // for (let  x = 0 ; x<pixels.data.length; x+=40){
+    //
+    //     //red
+    //     pixels.data[x] = 0;
+    //     //green
+    //     pixels.data[x+1] = 255
+    //     //blue
+    //     pixels.data[x+2] = 0;
+    //
+    // }
+    //
+    // ctx.putImageData(pixels, 0 , 0)
+    //
+    // ctx.restore()
+
+    ////////////////////////////////////////////////////
+    // ctx.save()
+    // let image = new Image();
+    //
+    // image.onload = function (){
+    //     ctx.drawImage(image,0,0,c.width,c.height);
+    //     ctx.font = "bold 40px Impact"
+    //     ctx.fillStyle = "white"
+    //     ctx.strokeStyle = "black"
+    //     ctx.lineWidth=2;
+    //     ctx.fillText("Dyes na Ngwai", 30,40);
+    //     ctx.strokeText("Dyes na Ngwai", 30,40);
+    //     ctx.fillText("Pitisha!!", 60,290);
+    //     ctx.strokeText("Pitisha", 60,290);
+    // }
+    //
+    // image.src="data:image/jpeg;base64,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"
+    //
+    // ctx.restore();
+    ////////////////////////////////////////
+    // ctx.save();
+    // ctx.strokeStyle="green";
+    // // ctx.fillStyle = "black";
+    // ctx.rotate((Math.PI/180));
+    // ctx.translate(300,100);
+    // ctx.strokeRect(0,0,200,200);
+    // ctx.strokeText("Hello World",50,10);
+    // ctx.restore();
+    ////////////////////////////////
+    // ctx.strokeRect(200,200,200,200);
+    //
+    // ctx.beginPath();
+    // ctx.moveTo(250,250);
+    // ctx.lineTo(350,350);
+    // ctx.lineTo(350,250);
+    // ctx.lineTo(250,250);
+    // ctx.fill();
+    // ctx.stroke();
+    /////////////////////////////////////
+    // ctx.beginPath();
+    // ctx.moveTo(10,10);
+    // ctx.lineTo(50,50);
+    // ctx.lineTo(50,10);
+    // ctx.lineTo(10,10);
+    //
+    // ctx.fill();
+    // ctx.stroke();
+
+    //////////////////////////////////////////
+    // ctx.fillStyle = "blue";
+    // // Start at (0,0) and draw a 50px x 50px blue rectangle.
+    // ctx.fillRect(0,0,50,50);
+    // // Start at (0,0) and clear a 25px x 25px rectangle.
+    // ctx.clearRect(0,0,2,25)
+
+    ///////////////////////////////////////////////
+    // ctx.fillRect(100,100,100,100);
+    //
+    // ctx.strokeRect(50,50,50,50);
+    ///////////////////////////////////////////////
+    // const image = new Image();
+    //
+    // image.onload = function (event) {
+    //   console.log("Image Loaded");
+    //   ctx.drawImage(image, 0,0,c.width,c.height);
+    //   let imageData = c.toDataURL();
+    //   window.open(imageData);
+    // }
+    //
+    // image.src = "https://media.sproutsocial.com/uploads/meme-example.jpg";
+  </script>
+</body>
+</html>

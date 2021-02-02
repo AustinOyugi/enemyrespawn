@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Meme Generator</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <style>
+        #image-container {
+            display: flex;
+        }
+    </style>
+
+</head>
+<body>
+<div>
+    <input type="file" id="file">
+    <button onclick="applyGrayScale()">Applly Grey Filter</button>
+</div>
+<div id="image-container">
+
+    <canvas id="image-canvas" width="500" height="500"></canvas>
+
+    <div>
+        <canvas id="color-preview" width="300" height="500"></canvas>
+    </div>
+</div>
+
+<script>
+
+    const imageFile = document.getElementById("file")
+
+    const imageCanvas = document.getElementById("image-canvas")
+    const previewCanvas = document.getElementById("color-preview");
+
+    const imageCanvasContext = imageCanvas.getContext('2d')
+    const previewCanvasCOntext = previewCanvas.getContext('2d')
+
+    imageCanvasContext.fillStyle = "white"
+    previewCanvasCOntext.fillStyle = "white"
+
+    imageCanvasContext.fillRect(0,0,imageCanvas.width,imageCanvas.height)
+    previewCanvasCOntext.fillRect(0,0,previewCanvas.width,previewCanvas.height)
+
+    if (imageFile){
+        imageFile.addEventListener('change', function (){
+
+            if (this.files && this.files[0]){
+
+                let fileReader = new FileReader()
+
+                fileReader.onload = function (event) {
+
+                    let image = new Image()
+
+                    image.onload = function (){
+
+                        imageCanvasContext.drawImage(image,0,0,imageCanvas.width,imageCanvas.height)
+                    }
+
+                    // noinspection JSValidateTypes
+                    image.src = event.target.result
+
+                }
+
+                fileReader.readAsDataURL(this.files[0])
+            }
+        }, false)
+    }
+
+    imageCanvas.addEventListener("mousemove", function (event) {
+
+        const mousePosition = getMousePosition(imageCanvas,event)
+
+        let imageData = imageCanvasContext.getImageData(mousePosition.x, mousePosition.y,imageCanvas.width,imageCanvas.height)
+
+        let previewImageData = previewCanvasCOntext.getImageData(0,0,previewCanvas.width,previewCanvas.height)
+
+        for (let x = 0 ; x<previewImageData.data.length; x+=4 ){
+
+            previewImageData.data[x] = imageData.data[0]
+            previewImageData.data[x+1] = imageData.data[1]
+            previewImageData.data[x+2] = imageData.data[2]
+        }
+
+        previewCanvasCOntext.putImageData(previewImageData,0,0)
+
+    })
+
+    function applyGrayScale(){
+
+        console.log("Applying ray scale")
+
+        let pixels = imageCanvasContext.getImageData(0,0,imageCanvas.width,imageCanvas.height)
+
+        for (let x = 0 ; x<pixels.data.length; x+=4 ){
+
+            let red = pixels.data[x]
+            let green = pixels.data[x+1]
+            let blue = pixels.data[x+2]
+
+            let gray = (red * 0.3 + green * 0.59 + blue * 0.11)
+
+            pixels.data[x] = gray
+            pixels.data[x+1] = gray
+            pixels.data[x+2] = gray
+        }
+
+        imageCanvasContext.putImageData(pixels,0,0)
+    }
+
+    function getMousePosition(canvas,event){
+        let rect = canvas.getBoundingClientRect();
+
+        return{
+            x: event.clientX - rect.left,
+            y: event.clientY - rect.top
+        }
+    }
+
+</script>
+</body>
+</html>

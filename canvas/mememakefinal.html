@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Meme Generator</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <style>
+        #image-container {
+            display: flex;
+        }
+    </style>
+
+</head>
+<body>
+<div>
+    <input type="file" id="file">
+</div>
+<div id="image-container">
+
+    <canvas id="canvas" width="500" height="500"></canvas>
+
+    <div>
+        <span>Top Line:</span><br/>
+        <label for="topLineText"></label>
+        <input id="topLineText" type="text"><br/>
+
+        <span>Bottom Line:</span><br/>
+        <label for="bottomLineText"></label>
+        <input id="bottomLineText" type="text"><br/>
+        <button id="saveBtn">Download</button>
+    </div>
+</div>
+
+<script>
+    const imageFile = document.getElementById("file")
+    const canvas = document.getElementById("canvas")
+    const topLineText = document.getElementById("topLineText")
+    const bottomLineText = document.getElementById("bottomLineText")
+    const downloadButton = document.getElementById("saveBtn")
+    const context = canvas.getContext('2d')
+
+    if (imageFile){
+        imageFile.addEventListener('change', function (){
+
+            if (this.files && this.files[0]){
+
+                let fileReader = new FileReader()
+
+                fileReader.onload = function (event) {
+
+                    let image = new Image()
+
+                    image.onload = function (){
+
+                        context.drawImage(image,0,0,canvas.width,canvas.height)
+                    }
+
+                    // noinspection JSValidateTypes
+                    image.src = event.target.result
+
+                }
+
+                fileReader.readAsDataURL(this.files[0])
+            }
+        }, false)
+    }
+
+    if (topLineText){
+        topLineText.addEventListener('change', function (event){
+            const text = event.target.value
+            drawMeme(text,'top')
+        })
+    }
+
+    if (bottomLineText){
+        bottomLineText.addEventListener('change', function (event){
+            const text = event.target.value
+            drawMeme(text,'bottom')
+        })
+    }
+
+
+    function drawMeme(text,position){
+
+        context.save()
+
+        context.font="bold 40px impact"
+        context.fillStyle = "white"
+        context.strokeStyle = "black"
+        context.lineWidth = 2
+
+        const textWidth = measureTextLength(text,40,"impact").width;
+        const newWidth = (canvas.width - textWidth)/2
+
+        if (position === 'top'){
+            context.fillText(text,newWidth, 40)
+            context.strokeText(text,newWidth,40)
+        }else if (position === 'bottom'){
+            context.fillText(text,newWidth, canvas.height - 20 )
+            context.strokeText(text,newWidth, canvas.height -20)
+        }
+
+        context.restore()
+    }
+
+    if (downloadButton){
+        downloadButton.addEventListener("click", function (){
+
+            window.location.href=canvas.toDataURL("image/png").replace("image/png", "image/octet-stream");
+        })
+    }
+    function measureTextLength(text,fonSize,style){
+        let tempDiv = document.createElement('div')
+
+        document.body.appendChild(tempDiv)
+
+        if (style != null){
+            tempDiv.style=style;
+        }
+
+        tempDiv.style.fontSize = ""+fonSize+"px"
+        tempDiv.style.position= "absolute"
+
+        // noinspection JSValidateTypes
+        tempDiv.style.left = -1000
+        // noinspection JSValidateTypes
+        tempDiv.style.top = -1000
+
+        tempDiv.innerHTML = text
+
+        let result = {
+            width:tempDiv.clientWidth,
+            height:tempDiv.clientHeight
+        };
+
+        document.body.removeChild(tempDiv)
+        tempDiv=null
+
+        return result
+
+    }
+
+</script>
+</body>
+</html>
