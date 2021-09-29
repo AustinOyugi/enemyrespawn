@@ -1,0 +1,486 @@
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-bootstrap-4@4.0.1/bootstrap-4.min.css">
+    <style>
+        #canvas{
+            border: black 1px solid;
+        }
+    </style>
+</head>
+<button onclick="initGame()">startNewGame</button>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+
+<script>
+
+    Swal.fire({
+        icon: 'warning',
+        title: 'Dodge the red blocks! Each collition reduces your HP',
+        confirmButtonText: 'Next',
+        background:' url(https://i1.wp.com/www.tutorialbrain.com/wp-content/uploads/2019/05/Radial-Gradient.png?fit=474%2C329&ssl=1)'
+    }).then(result =>{
+        if (result.isConfirmed){
+            Swal.fire({
+                icon: 'info',
+                title:'The Yellow blocks adds points by 100',
+                confirmButtonText: 'Next',
+                background: 'url(https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQbPmJr9H3Dpt0v2xMIoPc3ykjbe_FjDj6P0w&usqp=CAU)'
+            }).then(result =>{
+                Swal.fire({
+                    icon: 'info',
+                    title:'The Purple blocks increase attacking speed(bullets)',
+                    confirmButtonText: 'Okay',
+                    background : 'url(data:image/jpeg;base64,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)'
+                }).then(result =>{
+                    initGame()
+                })
+            })
+        }
+    })
+
+    function initGame(){
+
+
+        let canvas =  document.getElementById("canvas")
+
+        if(canvas){
+            document.body.removeChild(canvas)
+        }
+
+        const element = document.createElement("canvas");
+        element.id  = "canvas"
+        document.body.appendChild(element)
+
+        canvas =  document.getElementById("canvas")
+
+        const context = canvas.getContext('2d')
+
+        context.font = "30px Arial"
+
+        canvas.width = 0.8 * window.innerWidth
+        canvas.height = 0.8 * window.innerHeight
+
+        const HEIGHT = canvas.clientHeight
+        const WIDTH = canvas.clientWidth
+
+        let enemyList = {}
+        let upgradeList = {}
+        let bulletList = {}
+
+        let timeStarted = Date.now()
+        let framecount = 0
+        let score = 0
+
+        const player = {
+            x:50,
+            y:40,
+            spdY:5,
+            spdX:30,
+            name:'P',
+            hp:30,
+            width:20,
+            height:20,
+            color:'green',
+            atkSpeed:1,
+            attackCounter:0,
+            pressingDown:false,
+            pressingUp:false,
+            pressingLeft:false,
+            pressingRight:false
+        }
+
+
+        let Enemy = function (id,x,y,spdX,spdY,width,height){
+            enemyList[id] = {
+                x: x,
+                y: y,
+                spdY: spdY,
+                spdX: spdX,
+                name: id,
+                width:width,
+                height:height,
+                color:'red'
+            }
+        }
+
+        let Upgrade = function (id,x,y,spdX,spdY,width,height,category,color){
+            upgradeList[id] = {
+                x: x,
+                y: y,
+                spdY: spdY,
+                spdX: spdX,
+                name: id,
+                width:width,
+                height:height,
+                color:color,
+                category:category,
+                timer : 0
+            }
+        }
+
+        let Bullet = function (id,x,y,spdX,spdY,width,height){
+            bulletList[id] = {
+                x: x,
+                y: y,
+                spdY: spdY,
+                spdX: spdX,
+                name: id,
+                width:width,
+                height:height,
+                color:'black',
+                timer:0
+            }
+        }
+
+        const  onclick = document.onclick = function (ev){
+            if (player.attackCounter > 25){
+                generateRandomeBullet()
+                player.attackCounter = 0
+            }
+        }
+
+        document.ontouchmove = function (ev){
+            let br = document.getElementById("canvas").getBoundingClientRect();
+            // x & y are relative to the clicked element
+            let touchX = ev.touches[0].clientX - br.left;
+
+            let touchY = ev.touches[0].clientY - br.top;
+
+            if (touchX < player.width/2) touchX = player.width/2
+
+            if (touchX > WIDTH - player.width/2) touchX = WIDTH - player.width/2
+
+            if (touchY < player.height ) touchY = player.height
+
+            if (touchY > HEIGHT - player.height/2) touchY = HEIGHT - player.height/2
+
+            player.x = touchX
+            player.y = touchY
+
+            onclick(this)
+        }
+
+        document.onmousemove = function (ev){
+            let mouseX = ev.clientX - document.getElementById('canvas').getBoundingClientRect().left
+            let mouseY = ev.clientY - document.getElementById('canvas').getBoundingClientRect().top
+
+            if (mouseX < player.width/2) mouseX = player.width/2
+
+            if (mouseX > WIDTH - player.width/2) mouseX = WIDTH - player.width/2
+
+            if (mouseY < player.height ) mouseY = player.height
+
+            if (mouseY > HEIGHT - player.height/2) mouseY = HEIGHT - player.height/2
+
+            player.x = mouseX
+            player.y = mouseY
+
+        }
+
+        let updatePosition = function (entity){
+            entity.x += entity.spdX
+            entity.y += entity.spdY
+
+            if (entity.x > WIDTH || entity.x < 0){
+                entity.spdX = -entity.spdX
+            }
+
+            if (entity.y>HEIGHT || entity.y<0){
+                entity.spdY = -entity.spdY
+            }
+        }
+
+        let drawEntity = function (entity){
+            context.save()
+            context.fillStyle = entity.color
+            context.fillRect(entity.x-entity.width/2, entity.y-entity.height/2, entity.width , entity.height)
+            context.restore()
+        }
+
+        document.onkeydown = function (event){
+            const keyCode = event.key
+
+            const moveXOffset = player.width/2
+            const moveYOffset = player.height/2
+
+            if (keyCode === "ArrowLeft" ||  event.keyCode === 65){
+
+                let diff = player.x - moveXOffset
+
+                if (diff < player.width/2){
+                    player.x = moveXOffset
+                }else {
+                    player.x = diff
+                }
+            }
+
+            if (keyCode === "ArrowRight" ||  event.keyCode === 68){
+
+                let diff =  player.x + moveXOffset
+
+                if (diff > WIDTH - player.width/2){
+                    player.x = WIDTH - player.width/2
+                }else {
+                    player.x = diff
+                }
+            }
+
+            if (keyCode === "ArrowUp" ||  event.keyCode === 87) {
+
+                let diff =  player.y - moveYOffset
+
+                if (diff < player.height){
+                    player.y = player.height - moveYOffset
+                }else {
+                    player.y = player.y - moveYOffset
+                }
+            }
+
+            if (keyCode === "ArrowDown" ||  event.keyCode === 83){
+
+                let diff =  player.y + moveYOffset
+
+                if (diff > HEIGHT - player.height){
+                    player.y = HEIGHT - moveYOffset
+                }else {
+                    player.y = player.y + moveYOffset
+                }
+            }
+
+            if (keyCode === "enter" || event.keyCode === 32){
+                generateRandomeBullet()
+            }
+        }
+
+        document.onkeyup = function (){
+
+        }
+
+        let update = function (){
+            context.clearRect(0,0,WIDTH,HEIGHT)
+
+            score += 1
+            framecount += 1
+
+            player.attackCounter += player.atkSpeed
+
+            if (framecount % 20 === 0)
+                generateRandomeEnemy()
+
+            if (framecount % 75 === 0)
+                generateRandomeUpgrade()
+
+            // if (framecount % Math.round(25/player.atkSpeed) === 0)
+            //     generateRandomeBullet()
+
+            for (let key in bulletList){
+                updateEntity(bulletList[key])
+                bulletList[key].timer +=1
+
+                if (bulletList[key].timer > 50){
+                    delete bulletList[key]
+                    continue
+                }
+
+                for (let key2 in enemyList){
+
+                    let isColliding = testCollisionEntity(bulletList[key],enemyList[key2])
+
+                    if (isColliding){
+
+                        delete enemyList[key2]
+
+                        delete bulletList[key]
+
+                        break
+                    }
+                }
+            }
+
+            for (let key in upgradeList){
+                updateEntity(upgradeList[key])
+
+                upgradeList[key].timer +=1
+
+                if (upgradeList[key].timer > 100){
+                    delete upgradeList[key]
+                    continue
+                }
+
+                let isColliding = testCollisionEntity(player,upgradeList[key])
+
+                if (isColliding){
+
+                    if (upgradeList[key].category === 'atkSpeed'){
+                        player.atkSpeed += 1
+                    }else if (upgradeList[key].category === 'score'){
+                        score += 100
+                    }
+
+                    delete upgradeList[key]
+                }
+            }
+
+            for (let key in enemyList){
+                updateEntity(enemyList[key])
+
+                let isColliding = testCollisionEntity(player,enemyList[key])
+
+                if (isColliding){
+                    player.hp -= 1
+                }
+            }
+
+            if (player.hp <= 0 ) {
+                let timeSurvived = Date.now() - timeStarted
+
+                clearInterval(engine)
+
+                Swal.fire({
+                    showDenyButton : true,
+                    icon : 'success',
+                    title: `Awesome!! \n
+                            You survived for ${Math.floor(timeSurvived/1000)} ms \n
+                            Score: ${score}`,
+                    confirmButtonText : 'Play Again?',
+                    denyButtonText : 'Quit'
+                }).then(result => {
+
+                    if (result.isConfirmed){
+                        engine = setInterval(update, 50)
+                        startNewGame()
+                    }else if (result.isDenied){
+                        document.body.removeChild(canvas)
+                    }
+
+                })
+            }
+
+            drawEntity(player)
+
+            context.font="bold 40px arial"
+            context.fillText("Hp: "+player.hp, canvas.width/2,30)
+            context.fillText("Score: "+score, 250,30)
+        }
+
+        let startNewGame = function (){
+            player.hp = 30
+            player.atkSpeed = 1
+            player.attackCounter = 0
+            timeStarted = Date.now()
+            framecount = 0
+            score = 0
+            enemyList = {}
+            upgradeList = {}
+            bulletList = {}
+
+            generateRandomeEnemy()
+            generateRandomeEnemy()
+            generateRandomeEnemy()
+        }
+
+        let updateEntity = function (entity){
+            updatePosition(entity)
+            drawEntity(entity)
+        }
+
+        let testCollisionEntity = function testCollisionEntity(entity1, entity2){
+            // let distance = getDistanceBetweenEntities(entity1,entity2)
+            // return distance < 30
+
+            let rect1 = {
+                x: entity1.x-entity1.width/2,
+                y: entity1.y -entity1.height/2,
+                width: entity1.width,
+                height:entity1.height
+            }
+
+            let rect2 = {
+                x: entity2.x-entity2.width/2,
+                y: entity2.y -entity2.height/2,
+                width: entity2.width,
+                height:entity2.height
+            }
+
+            return testCollisionRectRect( rect1, rect2)
+        }
+
+        let getDistanceBetweenEntities = function (entity1, entity2){
+            let rx = entity1.x - entity2.x
+            let ry = entity1.y - entity2.y
+
+            return Math.sqrt(rx*rx*ry*ry)
+        }
+
+        let testCollisionRectRect = function (rect1, rect2){
+            return rect1.x <= rect2.x + rect2.width
+                && rect2.x <= rect1.x + rect1.width
+                && rect1.y <= rect2.y + rect2.height
+                && rect2.y <= rect1.y + rect1.height
+        }
+
+        let generateRandomeEnemy = function (){
+            let x = Math.random() * WIDTH
+            let y = Math.random() * HEIGHT
+
+            let width = 10 + Math.random() * 30
+            let height = 10 + Math.random() * 30
+
+            let spdX = 5 + Math.random() * 5
+            let spdY = 5 + Math.random() * 5
+
+            let id = Math.random()
+
+            Enemy(id,x,y,spdX,spdY,width,height)
+        }
+
+        let generateRandomeUpgrade = function (){
+            let x = Math.random() * WIDTH
+            let y = Math.random() * HEIGHT
+
+            let width = 10
+            let height = 10
+
+            let spdX = 0
+            let spdY = 0
+
+            let id = Math.random()
+
+            let category
+            let color
+
+            if (Math.random() < .5){
+
+                color = 'orange'
+                category = 'score'
+            }else{
+
+                color = 'purple'
+                category = 'atkSpeed'
+            }
+
+            Upgrade(id,x,y,spdX,spdY,width,height,category,color)
+        }
+
+        let generateRandomeBullet = function (){
+            let x = player.x
+            let y = player.y
+
+            let width = 10
+            let height = 10
+
+            let angle = Math.random() * 360
+
+            let spdX = Math.cos(angle/180 * Math.PI) * 5
+            let spdY = Math.sin(angle/180 * Math.PI ) * 5
+
+            let id = Math.random()
+
+            Bullet(id,x,y,spdX,spdY,width,height)
+        }
+
+        startNewGame()
+
+        let engine = setInterval(update,50)
+    }
+
+</script>
